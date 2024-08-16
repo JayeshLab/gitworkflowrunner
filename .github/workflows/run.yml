@@ -44,4 +44,4 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Run Node.js script and capture output
-        run: pm2-runtime start index.js
+        run: pm2 start index.js
