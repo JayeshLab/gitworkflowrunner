@@ -44,8 +44,9 @@ jobs:
       - name: Run Node.js script and capture output
         id: capture_value
         run: |
-          myValue=$(node index.js)
-          echo "myValue=$myValue" >> $GITHUB_ENV
+          node index.js &
+          exit_code=$?
+          echo $exit_code
 
       - name: Use captured value
         run: echo "The captured value is ${{ env.myValue }}"
