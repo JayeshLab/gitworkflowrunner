@@ -36,8 +36,6 @@ jobs:
           node-version: "20.x"
       - name: Install dependencies
         run: npm install
-      - name: Run build
-        run: npm run build
       - name: Run addlock
         run: npm run addlock
       - name: Run copy script
