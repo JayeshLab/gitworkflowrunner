@@ -2,6 +2,8 @@
 
 name: CI
 
+env:
+  OUTPUT_PATH: ${{ github.workspace }}
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
@@ -24,24 +26,21 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
-
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
-
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20.x"
-      - name: Install pm2
-        run: npm i -g pm2
       - name: Install dependencies
         run: npm install
-      - name: Run Node.js script and capture output
-        run: pm2 start index.js --name runner-app
+      - name: Run build
+        run: npm run build
+      - name: Run addlock
+        run: npm run addlock
+      - name: Run copy script
+        run: |
+          New-Item -Path "C:\gitworkflowrunner" -ItemType Directory -Force
+          Remove-Item -Path "C:\gitworkflowrunner\*" -Recurse -Force
+          Copy-Item -Path "C:\Users\hello\actions-runner\_work\gitworkflowrunner\gitworkflowrunner\*" -Destination "C:\gitworkflowrunner" -Recurse
+        shell: pwsh
+      - name: Run removelock
+        run: npm run removelock
