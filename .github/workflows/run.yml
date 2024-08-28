@@ -38,7 +38,13 @@ jobs:
 
       - name: Build
         run: npm run build
-
+      - name: Set outputs
+        id: vars
+        shell: pwsh
+        run: echo "::set-output name=production::true"
+      - name: Check outputs
+        shell: pwsh
+        run: echo ${{ steps.vars.outputs.production }}
       - name: Run addlock
         id: add-lock
         run: node ./dist/addlock.js >> $GITHUB_OUTPUT
@@ -46,6 +52,8 @@ jobs:
       - name: Run copy script
         run: |
           echo "PARAMETER [ ${{ steps.add-lock.outputs.start_time }} ]"
+          echo "env : ${{ env.tm }}"
+          echo ${{ steps.add-lock.outputs }}
           New-Item -Path "C:\gitworkflowrunner" -ItemType Directory -Force
           Remove-Item -Path "C:\gitworkflowrunner\*" -Recurse -Force
           Copy-Item -Path "C:\Users\hello\actions-runner\_work\gitworkflowrunner\gitworkflowrunner\*" -Destination "C:\gitworkflowrunner" -Recurse
