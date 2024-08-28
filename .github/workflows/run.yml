@@ -38,13 +38,6 @@ jobs:
 
       - name: Build
         run: npm run build
-      - name: Set outputs
-        id: vars
-        shell: pwsh
-        run: echo "::set-output name=production::true"
-      - name: Check outputs
-        shell: pwsh
-        run: echo ${{ steps.vars.outputs.production }}
       - name: Run addlock
         id: add-lock
         run: node ./dist/addlock.js
