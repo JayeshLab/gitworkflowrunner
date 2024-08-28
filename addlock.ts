@@ -1,42 +1,37 @@
-import * as fs from "fs";
-let checkLoop;
-const time_limit = 20000 * 5;
-const check_interval = 5000;
-const lockfilePath = "C:/Temp/";
-function checkIfNodeLockExist() {
-  return fs.existsSync(`${lockfilePath}node.lock`);
-}
-function checkIfDeployLockExist() {
-  return fs.existsSync(`${lockfilePath}deploy.lock`);
-}
-function createDeployLock() {
-  console.log("Creating Deploy Lock");
-  const currentTime = Date.now();
-  fs.writeFileSync(`${lockfilePath}deploy.lock`, currentTime.toString());
-  process.exit(0);
-}
-function execute() {
-  console.log("ADD LOCK STARTED");
-  const nodeLock = checkIfNodeLockExist();
-  if (nodeLock) {
-    console.log("Node lock is present");
-    const content = fs.readFileSync(`${lockfilePath}node.lock`, { encoding: "utf8", flag: "r" });
-    const node_ts = parseInt(content);
-    checkLoop = setInterval(() => {
-      console.log("Checking lock again");
-      if (Date.now() - node_ts > time_limit) {
-        console.log("Limit Crossed");
-        clearInterval(checkLoop);
+import * as dotenv from "dotenv";
+import { WorkflowMixin } from "./mixins/workflow.mixin";
+import { BaseClass } from "./base.class";
+
+dotenv.config();
+
+export class AddLock extends WorkflowMixin(BaseClass) {
+  protected _process_time_limit = parseInt(process.env.PROCESS_TIME_LIMIT);
+  protected _lock_check_delay = parseInt(process.env.LOCK_CHECK_DELAY);
+
+  public constructor(...args: any[]) {
+    super(args);
+  }
+  public async main(): Promise<number> {
+    const startTime = Date.now();
+    const myFileName = this.addLockFile(startTime);
+    let exit = true;
+    do {
+      let files = this.readFilesFromFolder();
+      this.checkOlderFilesAndRemove(files);
+      files = this.readFilesFromFolder();
+      if (files[0] === myFileName) {
+        return startTime;
+      } else if (startTime - Date.now() > this._process_time_limit) {
         process.exit(1);
+      } else {
+        await this.delay(this._lock_check_delay);
       }
-      const lock = checkIfNodeLockExist();
-      if (!lock) {
-        console.log("Node lock not exist");
-        createDeployLock();
-      }
-    }, check_interval);
-  } else {
-    createDeployLock();
+    } while (exit);
   }
 }
-execute();
+
+(async () => {
+  const addLock = new AddLock();
+  const tm = await addLock.main();
+  console.log(`start_time=${tm}`);
+})().catch((e) => console.error(e));

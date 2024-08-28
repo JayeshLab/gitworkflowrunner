@@ -21,7 +21,6 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: runner-1
-
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -36,8 +35,14 @@ jobs:
           node-version: "20.x"
       - name: Install dependencies
         run: npm install
+
+      - name: Build
+        run: npm run build
+
       - name: Run addlock
-        run: npm run addlock
+        id: add-lock
+        run: node ./dist/addlock.js >> $GITHUB_OUTPUT
+
       - name: Run copy script
         run: |
           New-Item -Path "C:\gitworkflowrunner" -ItemType Directory -Force
@@ -45,4 +50,4 @@ jobs:
           Copy-Item -Path "C:\Users\hello\actions-runner\_work\gitworkflowrunner\gitworkflowrunner\*" -Destination "C:\gitworkflowrunner" -Recurse
         shell: pwsh
       - name: Run removelock
-        run: npm run removelock
+        run: node ./dist/removelock.js ${{ steps.add-lock.outputs.start_time }}

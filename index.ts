@@ -1,46 +1,35 @@
 import * as fs from "fs";
-const time_limit = 20000 * 5;
-const lockfilePath = "C:/Temp/";
+import * as dotenv from "dotenv";
+import { BaseClass } from "./base.class";
+import { WorkflowMixin } from "./mixins/workflow.mixin";
+dotenv.config();
 
-function checkIfDeployLockExist() {
-  return fs.existsSync(`${lockfilePath}deploy.lock`);
-}
-function createNodeLock() {
-  const currentTime = Date.now();
-  fs.writeFileSync(`${lockfilePath}node.lock`, currentTime.toString());
-  console.log("Node lock created");
-}
-function removeNodeLock() {
-  fs.unlinkSync(`${lockfilePath}node.lock`);
-  console.log("Node Lock Removed");
-  process.exit(0);
-}
-function checkIfDeployLockExceedLimit() {
-  const content = fs.readFileSync(`${lockfilePath}deploy.lock`, { encoding: "utf8", flag: "r" });
-  const deploy_ts = parseInt(content);
-  return Date.now() - deploy_ts > time_limit;
-}
-const delay = (delayInms) => {
-  return new Promise((resolve) => setTimeout(resolve, delayInms));
-};
-async function execute() {
-  try {
-    const deployLock = checkIfDeployLockExist();
-    if (deployLock) {
-      console.log("Deploy Lock Exist");
-      if (!checkIfDeployLockExceedLimit()) {
-        console.log("Did not exceed limit");
-        process.exit(0);
+export class Mover extends WorkflowMixin(BaseClass) {
+  public constructor(...args: any[]) {
+    super(args);
+  }
+  public async main(): Promise<void> {
+    const startTime = Date.now();
+    const myFileName = this.addLockFile(startTime);
+    let exit = true;
+    do {
+      let files = this.readFilesFromFolder();
+      this.checkOlderFilesAndRemove(files);
+      files = this.readFilesFromFolder();
+      if (files[0] === myFileName) {
+        exit = false;
+      } else if (startTime - Date.now() > 10 * 60 * 1000) {
+        process.exit(1);
+      } else {
+        await this.delay(parseInt(process.env.LOCK_CHECK_INTERVAL));
       }
-    }
-    createNodeLock();
+    } while (exit);
     console.log("Process Started");
-    await delay(60000);
-    console.log("Done");
-  } catch (err) {
-    console.log(err);
-  } finally {
-    removeNodeLock();
+    await this.delay(60000);
+    this.removeLockFile(startTime);
   }
 }
-execute();
+(async () => {
+  const mover = new Mover();
+  mover.main();
+})().catch((e) => console.error(e));
