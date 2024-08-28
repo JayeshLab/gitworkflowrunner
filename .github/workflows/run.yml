@@ -53,7 +53,7 @@ jobs:
         run: |
           echo "PARAMETER [ ${{ steps.add-lock.outputs.start_time }} ]"
           echo "env : ${{ env.tm }}"
-          echo ${{ steps.add-lock.outputs }}
+          echo ${{ steps.add-lock.outputs.test }}
           New-Item -Path "C:\gitworkflowrunner" -ItemType Directory -Force
           Remove-Item -Path "C:\gitworkflowrunner\*" -Recurse -Force
           Copy-Item -Path "C:\Users\hello\actions-runner\_work\gitworkflowrunner\gitworkflowrunner\*" -Destination "C:\gitworkflowrunner" -Recurse
