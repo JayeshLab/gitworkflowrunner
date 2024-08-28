@@ -1,6 +1,7 @@
 import * as dotenv from "dotenv";
 import { WorkflowMixin } from "./mixins/workflow.mixin";
 import { BaseClass } from "./base.class";
+const { exec } = require("child_process");
 
 dotenv.config();
 
@@ -33,6 +34,5 @@ export class AddLock extends WorkflowMixin(BaseClass) {
 (async () => {
   const addLock = new AddLock();
   const tm = await addLock.main();
-  console.log(`${tm}`);
-  return tm;
+  exec(`echo "start_time=${tm}" >> $GITHUB_OUTPUT`);
 })().catch((e) => console.error(e));
