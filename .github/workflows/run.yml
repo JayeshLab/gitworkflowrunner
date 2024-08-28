@@ -47,11 +47,11 @@ jobs:
         run: echo ${{ steps.vars.outputs.production }}
       - name: Run addlock
         id: add-lock
-        run: node ./dist/addlock.js
+        run: node ./dist/addlock.js >> "$GITHUB_OUTPUT"
 
       - name: Run copy script
         run: |
-          Write-Output "$env:test"
+          echo ${{ steps.add-lock.outputs.START_TIME }}
           New-Item -Path "C:\gitworkflowrunner" -ItemType Directory -Force
           Remove-Item -Path "C:\gitworkflowrunner\*" -Recurse -Force
           Copy-Item -Path "C:\Users\hello\actions-runner\_work\gitworkflowrunner\gitworkflowrunner\*" -Destination "C:\gitworkflowrunner" -Recurse
