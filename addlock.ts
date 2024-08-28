@@ -34,8 +34,8 @@ export class AddLock extends WorkflowMixin(BaseClass) {
 (async () => {
   const addLock = new AddLock();
   const tm = await addLock.main();
-  exec(`echo ::set-output name=test::howru`);
+  exec(`test=howru | Out-File -FilePath $env:GITHUB_ENV -Append`);
   //console.log(`echo "start_time=${tm}" >> $GITHUB_OUTPUT`);
-  process.stdout.write(`start_time=${tm}`);
+  //process.stdout.write(`start_time=${tm}`);
   return;
 })().catch((e) => console.error(e));
