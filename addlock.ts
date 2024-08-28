@@ -33,5 +33,6 @@ export class AddLock extends WorkflowMixin(BaseClass) {
 (async () => {
   const addLock = new AddLock();
   const tm = await addLock.main();
-  console.log(`start_time=${tm}`);
+  console.log(`${tm}`);
+  return tm;
 })().catch((e) => console.error(e));
