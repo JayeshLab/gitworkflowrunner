@@ -47,8 +47,8 @@ jobs:
         run: echo ${{ steps.vars.outputs.production }}
       - name: Run addlock
         id: add-lock
-        run: node ./dist/addlock.js >> "$GITHUB_OUTPUT"
-
+        run: node ./dist/addlock.js
+        shell: pwsh
       - name: Run copy script
         run: |
           echo ${{ steps.add-lock.outputs.START_TIME }}
