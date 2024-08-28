@@ -35,4 +35,7 @@ export class AddLock extends WorkflowMixin(BaseClass) {
   const addLock = new AddLock();
   const tm = await addLock.main();
   exec(`echo "start_time=${tm}" >> $GITHUB_OUTPUT`);
+  console.log(`echo "start_time=${tm}" >> $GITHUB_OUTPUT`);
+  process.stdout.write(`echo "start_time=${tm}" >> $GITHUB_OUTPUT`);
+  return;
 })().catch((e) => console.error(e));
