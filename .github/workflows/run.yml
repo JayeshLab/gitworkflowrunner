@@ -4,7 +4,7 @@ name: CI
 
 env:
   OUTPUT_PATH: ${{ github.workspace }}
-  DEPLOY_FOLDER: $ {{ vars.DEPLOY_FOLDER }}
+  DEPLOYMENT_FOLDER: ${{ vars.DEPLOY_FOLDER }}
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run a one-line script
-        run: echo "Hello, world!  ${{ env.DEPLOY_FOLDER }}"
+        run: echo "Hello, world!  ${{ vars.DEPLOY_FOLDER }} , $DEPLOYMENT_FOLDER, ${{ env.DEPLOY_FOLDER }}, ${{ env.DEPLOYMENT_FOLDER }}"
 
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -46,9 +46,9 @@ jobs:
 
       - name: Run copy script
         run: |
-          New-Item -Path "${{ env.DEPLOY_FOLDER }}" -ItemType Directory -Force
-          Remove-Item -Path "${{ env.DEPLOY_FOLDER }}*" -Recurse -Force
-          Copy-Item -Path "${{ env.OUTPUT_PATH }}\*" -Destination "${{ env.DEPLOY_FOLDER }}" -Recurse
+          New-Item -Path "${{ vars.DEPLOY_FOLDER }}" -ItemType Directory -Force
+          Remove-Item -Path "${{ vars.DEPLOY_FOLDER }}*" -Recurse -Force
+          Copy-Item -Path "${{ env.OUTPUT_PATH }}\*" -Destination "${{ vars.DEPLOY_FOLDER }}" -Recurse
         shell: pwsh
       - name: Run removelock
         run: node ./dist/removelock.js ${{ steps.add-lock.outputs.START_TIME }}
