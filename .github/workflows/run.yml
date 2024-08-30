@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run a one-line script
-        run: echo "Hello, world! $OUTPUT_PATH"
+        run: echo "Hello, world!  ${{ env.DEPLOY_FOLDER }}"
 
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -46,9 +46,9 @@ jobs:
 
       - name: Run copy script
         run: |
-          New-Item -Path "$DEPLOY_FOLDER" -ItemType Directory -Force
-          Remove-Item -Path "$DEPLOY_FOLDER*" -Recurse -Force
-          Copy-Item -Path "C:\Users\hello\actions-runner\_work\gitworkflowrunner\gitworkflowrunner\*" -Destination "$DEPLOY_FOLDER" -Recurse
+          New-Item -Path "${{ env.DEPLOY_FOLDER }}" -ItemType Directory -Force
+          Remove-Item -Path "${{ env.DEPLOY_FOLDER }}*" -Recurse -Force
+          Copy-Item -Path "${{ env.OUTPUT_PATH }}\*" -Destination "${{ env.DEPLOY_FOLDER }}" -Recurse
         shell: pwsh
       - name: Run removelock
         run: node ./dist/removelock.js ${{ steps.add-lock.outputs.START_TIME }}
