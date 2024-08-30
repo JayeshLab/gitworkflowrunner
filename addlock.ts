@@ -1,40 +1,23 @@
 import * as dotenv from "dotenv";
-import { WorkflowMixin } from "./mixins/workflow.mixin";
+import { LockMixin } from "./mixins/lock.mixin";
 import { BaseClass } from "./base.class";
-const { exec } = require("child_process");
 import * as core from "@actions/core";
+
 dotenv.config();
 
-export class AddLock extends WorkflowMixin(BaseClass) {
-  protected _process_time_limit = parseInt(process.env.PROCESS_TIME_LIMIT);
-  protected _lock_check_delay = parseInt(process.env.LOCK_CHECK_DELAY);
-
+export class AddLock extends LockMixin(BaseClass) {
   public constructor(...args: any[]) {
-    super(args);
-  }
-  public async main(): Promise<number> {
-    const startTime = Date.now();
-    const myFileName = this.addLockFile(startTime);
-    let exit = true;
-    do {
-      let files = this.readFilesFromFolder();
-      this.checkOlderFilesAndRemove(files);
-      files = this.readFilesFromFolder();
-      if (files[0] === myFileName) {
-        return startTime;
-      } else if (startTime - Date.now() > this._process_time_limit) {
-        process.exit(1);
-      } else {
-        await this.delay(this._lock_check_delay);
-      }
-    } while (exit);
+    super(...args);
   }
 }
-
 (async () => {
   const addLock = new AddLock();
-  const tm = await addLock.main();
-  //exec(`test=howru | Out-File -FilePath $env:GITHUB_ENV -Append`);
-  //console.log(`echo "start_time=${tm}" >> $GITHUB_OUTPUT`);
-  core.setOutput("START_TIME", tm);
-})().catch((e) => console.error(e));
+  try {
+    const startTime = Date.now();
+    await addLock.obtainLock(startTime);
+    core.setOutput("START_TIME", startTime);
+  } catch (err) {
+    console.error(err.message ?? err.toString());
+    process.exit(1);
+  }
+})();

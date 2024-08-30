@@ -3,12 +3,11 @@
 // Define a generic class which can be instantiated.
 export type Constructor = new (...args: any[]) => object;
 
-export interface WorkflowMixinInterface {
-  readFilesFromFolder(): string[];
-  checkOlderFilesAndRemove(files: string[]): void;
+export interface LockMixinInterface {
+  readLocksFromFolder(): string[];
+  getLockFileName(): string;
   delay(ms: number): Promise<void>;
-  addLockFile(time: number): string;
-  removeLockFile(time: number): void;
+  obtainLock(startTime: number): Promise<number>;
+  releaseLock(startTime: number): string;
 }
-
 //#endregion Mixin types

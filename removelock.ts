@@ -1,25 +1,26 @@
 import * as fs from "fs";
 import * as dotenv from "dotenv";
-import { WorkflowMixin } from "./mixins/workflow.mixin";
+import { LockMixin } from "./mixins/lock.mixin";
 import { BaseClass } from "./base.class";
 dotenv.config();
 
-export class RemoveLock extends WorkflowMixin(BaseClass) {
+export class RemoveLock extends LockMixin(BaseClass) {
   protected _timestamp: number;
   public constructor(args: string[]) {
     super(args);
-    if (args[2]) {
-      this._timestamp = parseInt(args[2]);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [nodeExecutable, nodeScript, ...commandLineArgs] = args;
+    if (commandLineArgs[0]) {
+      this._timestamp = parseInt(commandLineArgs[0]);
     } else {
       throw Error("Timestamp argument not found");
     }
   }
   public async main(): Promise<void> {
-    console.log(this.removeLockFile(this._timestamp));
+    console.log(this.releaseLock(this._timestamp));
   }
 }
 (async () => {
   const removeLock = new RemoveLock(process.argv);
   removeLock.main();
-  return;
 })().catch((e) => console.error(e));
