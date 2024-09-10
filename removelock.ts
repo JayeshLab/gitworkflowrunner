@@ -12,12 +12,15 @@ export class RemoveLock extends LockMixin(BaseClass) {
     const [nodeExecutable, nodeScript, ...commandLineArgs] = args;
     if (commandLineArgs[0]) {
       this._timestamp = parseInt(commandLineArgs[0]);
-    } else {
-      throw Error("Timestamp argument not found");
     }
   }
   public async main(): Promise<void> {
-    console.log(this.releaseLock(this._timestamp));
+    if (this._timestamp) {
+      console.log(this.releaseLock(this._timestamp));
+    } else {
+      console.error("Missing Timestamp");
+      process.exit(1);
+    }
   }
 }
 (async () => {

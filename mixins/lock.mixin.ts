@@ -1,5 +1,7 @@
-import type { Constructor, LockMixinInterface } from "../types";
 import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
+import type { Constructor, LockMixinInterface } from "../types";
 
 export const LockMixin = <TBase extends Constructor>(Base: TBase) =>
   class extends Base implements LockMixinInterface {
@@ -7,49 +9,47 @@ export const LockMixin = <TBase extends Constructor>(Base: TBase) =>
     protected _pollFrequency: number;
     protected _lockFolderPath: string;
     protected _lockTimeout: number;
+
     public constructor(...args: any[]) {
       super(...args);
       this._processTimeout = (process.env.PROCESS_TIMEOUT && parseInt(process.env.PROCESS_TIMEOUT)) || 10 * 60 * 1000;
       this._pollFrequency = (process.env.POLL_FREQUENCY && parseInt(process.env.POLL_FREQUENCY)) || 10 * 1000;
       this._lockTimeout = (process.env.LOCK_TIMEOUT && parseInt(process.env.LOCK_TIMEOUT)) || 60 * 60 * 1000;
-      this._lockFolderPath = process.env.LOCK_FOLDER_PATH || "C:/tmp/lock/";
+      this._lockFolderPath = process.env.LOCK_FOLDER_PATH || path.join(os.tmpdir(), "locks", path.sep);
       // Create lock folder if not exist
       if (!fs.existsSync(this._lockFolderPath)) {
         fs.mkdirSync(this._lockFolderPath);
       }
     }
+
     /**
      * Read all the locks from lock folder path and sorted
      * @returns list of lock file
      */
-    readLocksFromFolder(): string[] {
+    protected readLocksFromFolder(): string[] {
       return fs
         .readdirSync(this._lockFolderPath)
-        .filter((file) => file.match(/^lock_/i))
+        .filter((file) => file.match(/^lock_([0-9]+)$/i))
         .sort();
     }
 
     /**
-     * Get the oldest lock name after removing locks which are timeout
+     * Get the oldest lock name
      * @returns oldest file name
      */
-    getLockFileName(): string {
+    protected getLockFileName(): string {
       let files = this.readLocksFromFolder();
-      for (const file of files) {
-        const match = file.match(/lock_(\d+)/i);
-        if (match && match[1]) {
-          const ts = parseInt(match[1]);
-          if (Date.now() - ts > this._lockTimeout) {
-            fs.unlinkSync(`${this._lockFolderPath}${file}`);
-          }
-        }
-      }
-      files = this.readLocksFromFolder();
+      files = files.filter((file) => {
+        const match = file.match(/^lock_([0-9]+)$/i);
+        return Date.now() - parseInt(match[1]) < this._lockTimeout;
+      });
       return files[0];
     }
-    public delay(ms: number): Promise<void> {
+
+    protected delay(ms: number): Promise<void> {
       return new Promise((resolve) => setTimeout(resolve, ms));
     }
+
     /**
      * Obtain the lock if no lock is aquired otherwise wait for the release of lock, if it exceeds process timeout throw error
      * @param current start time in milliseconds

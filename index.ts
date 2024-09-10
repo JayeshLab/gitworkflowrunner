@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as os from "os";
 import * as dotenv from "dotenv";
 import { BaseClass } from "./base.class";
 import { LockMixin } from "./mixins/lock.mixin";
