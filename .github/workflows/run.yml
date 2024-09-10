@@ -57,7 +57,7 @@ jobs:
         run: |
           New-Item -Path "${{ env.DEPLOY_FOLDER }}" -ItemType Directory -Force
           Remove-Item -Path "${{ env.DEPLOY_FOLDER }}*" -Recurse -Force
-          Copy-Item -Path "${{ env.OUTPUT_PATH }}\*" -Destination "${{ env.DEPLOY_FOLDER }}" -Recurse
+          Copy-Item -Path "${{ env.OUTPUT_PATH }}/*" -Destination "${{ env.DEPLOY_FOLDER }}" -Recurse
           $content = @"
           # Azure storage blob details:
           AZURE_STORAGE_CONNECTION_STRING='${{ env.AZURE_STORAGE_CONNECTION_STRING }}'
@@ -71,7 +71,7 @@ jobs:
           POLL_FREQUENCY=${{ env.POLL_FREQUENCY }}
           LOCK_TIMEOUT=${{ env.LOCK_TIMEOUT }}
           "@
-          Set-Content -Path "${{ env.OUTPUT_PATH }}\.env" -Value $content
+          Set-Content -Path "${{ env.DEPLOY_FOLDER }}/.env" -Value $content
         shell: pwsh
       - name: Run removelock
         run: node ./dist/removelock.js ${{ steps.add-lock.outputs.START_TIME }}
