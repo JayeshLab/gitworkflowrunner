@@ -62,12 +62,9 @@ jobs:
           Remove-Item -Path "${{ env.DEPLOY_FOLDER }}/apps/${{ env.SERVICE }}/*" -Recurse -Force
           Copy-Item -Path "./apps/${{ env.SERVICE }}/*" -Destination "${{ env.DEPLOY_FOLDER }}/apps/${{ env.SERVICE }}" -Recurse
           $content = @"
-          # Azure storage blob details:
           AZURE_STORAGE_CONNECTION_STRING='${{ env.AZURE_STORAGE_CONNECTION_STRING }}'
-          # NewRelic logging details:
           ENVIRONMENT='${{ env.ENVIRONMENT }}'
           NEWRELIC_LICENSE_KEY='${{ env.NEWRELIC_LICENSE_KEY }}'
-          # Other details:
           SERVICE='${{ env.SERVICE }}'
           LOCK_FOLDER_PATH=${{ env.LOCK_FOLDER_PATH }}
           PROCESS_TIMEOUT=${{ env.PROCESS_TIMEOUT }}
@@ -77,6 +74,7 @@ jobs:
           Set-Content -Path "${{ env.DEPLOY_FOLDER }}/apps/${{ env.SERVICE.env }}/.env" -Value $content
           Copy-Item "./tsconfig.json" -Destination "${{ env.DEPLOY_FOLDER }}"
         shell: pwsh
+
       - name: Run removelock
         working-directory: ./apps/myrunner/
         run: node ./dist/removelock.js ${{ steps.add-lock.outputs.START_TIME }}
