@@ -58,9 +58,9 @@ jobs:
 
       - name: Run copy script
         run: |
-          New-Item -Path "${{ env.DEPLOY_FOLDER }}/apps/${{ env.SERVICE }}" -ItemType Directory -Force
-          Remove-Item -Path "${{ env.DEPLOY_FOLDER }}/apps/${{ env.SERVICE }}/*" -Recurse -Force
-          Copy-Item -Path "./apps/${{ env.SERVICE }}/*" -Destination "${{ env.DEPLOY_FOLDER }}/apps/${{ env.SERVICE }}" -Recurse
+          New-Item -Path "${{ env.DEPLOY_FOLDER }}apps/${{ env.SERVICE }}" -ItemType Directory -Force
+          Remove-Item -Path "${{ env.DEPLOY_FOLDER }}apps/${{ env.SERVICE }}/*" -Recurse -Force
+          Copy-Item -Path "./apps/${{ env.SERVICE }}/*" -Destination "${{ env.DEPLOY_FOLDER }}apps/${{ env.SERVICE }}" -Recurse
           $content = @"
           AZURE_STORAGE_CONNECTION_STRING='${{ env.AZURE_STORAGE_CONNECTION_STRING }}'
           ENVIRONMENT='${{ env.ENVIRONMENT }}'
@@ -71,7 +71,7 @@ jobs:
           POLL_FREQUENCY=${{ env.POLL_FREQUENCY }}
           LOCK_TIMEOUT=${{ env.LOCK_TIMEOUT }}
           "@
-          Set-Content -Path "${{ env.DEPLOY_FOLDER }}/apps/${{ env.SERVICE }}/.env" -Value $content
+          Set-Content -Path "${{ env.DEPLOY_FOLDER }}apps/${{ env.SERVICE }}/.env" -Value $content
           Copy-Item "./tsconfig.json" -Destination "${{ env.DEPLOY_FOLDER }}"
         shell: pwsh
 
