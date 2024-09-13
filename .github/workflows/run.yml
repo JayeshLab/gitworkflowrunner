@@ -71,7 +71,7 @@ jobs:
           POLL_FREQUENCY=${{ env.POLL_FREQUENCY }}
           LOCK_TIMEOUT=${{ env.LOCK_TIMEOUT }}
           "@
-          Set-Content -Path "${{ env.DEPLOY_FOLDER }}/apps/${{ env.SERVICE.env }}/.env" -Value $content
+          Set-Content -Path "${{ env.DEPLOY_FOLDER }}/apps/${{ env.SERVICE }}/.env" -Value $content
           Copy-Item "./tsconfig.json" -Destination "${{ env.DEPLOY_FOLDER }}"
         shell: pwsh
 
